@@ -1,0 +1,31 @@
+# Betrieb hinter dem zentralen Reverse Proxy (/opt/docker/proxy mit Caddy für mehrere Programme).
+# Aktivieren über die .env dieses Ordners:  COMPOSE_FILE=docker-compose.proxy.yml  (setup.sh --proxy macht das)
+# Kein ports:, nur expose: Caddy erreicht den Hub im gemeinsamen Docker-Netzwerk "proxy" unter rsc-frya-hub:8770.
+x-logging: &logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "5"
+
+services:
+  hub:
+    build: .
+    image: rsc-frya-hub:latest
+    container_name: rsc-frya-hub
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      TMH_SECURE_COOKIES: "1"
+      TMH_TRUST_PROXY: "1"
+      # Öffentliche Adresse für Links (Mails, Sitemap): kommt aus DOMAIN in der .env, nur dort ändern
+      SITE_URL: "https://${DOMAIN}"
+    volumes:
+      - ./data:/data
+    expose:
+      - "8770"
+    networks: [proxy]
+    logging: *logging
+
+networks:
+  proxy:
+    external: true

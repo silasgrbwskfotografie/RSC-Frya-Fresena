@@ -1,0 +1,14 @@
+data
+.env
+*.zip
+__pycache__
+.git
+.gitignore
+.claude
+CLAUDE.md
+CHANGELOG.md
+PLATZHALTER.md
+deploy
+setup.sh
+update.sh
+server-haerten.sh

@@ -1,0 +1,9 @@
+[Unit]
+Description=RSC Frya Fresena Update-Helfer: wartet auf Anfragen aus dem Hub
+
+[Path]
+PathExists=/opt/docker/apps/rsc-frya-fresena/data/updater/request
+Unit=rsc-updater.service
+
+[Install]
+WantedBy=multi-user.target

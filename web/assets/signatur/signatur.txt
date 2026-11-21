@@ -1,0 +1,10 @@
+Viele Grüße
+
+{{NAME}}
+{{ROLLE}}
+
+Telefon: {{TELEFON}}
+E-Mail: {{EMAIL}}
+Web: {{WEB}}
+
+{{CLUB}}

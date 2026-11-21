@@ -1,0 +1,18 @@
+# ---------------------------------------------------------------- RSC Frya Fresena (Webseite und Hub)
+# In /opt/docker/proxy/Caddyfile UNTER dem Block (sicherheit) einfügen. Domain in /opt/docker/proxy/.env:
+#   RSC_DOMAIN=reiten.silasgrbwskfotografie.de
+# Später mit eigener Domain nur RSC_DOMAIN in der Proxy-.env und DOMAIN in /opt/docker/apps/rsc-frya-fresena/.env ändern.
+{$RSC_DOMAIN} {
+	import sicherheit
+
+	# Uploads und Backups, Umzugsdatei bis 2 GB (die Grenzen pro Anfrage prüft der Hub selbst)
+	request_body {
+		max_size 2GB
+	}
+
+	# Hub und interne Adressen nie in Suchmaschinen. Die Webseite selbst steuert der Hub (noindex, abschaltbar im Hub).
+	@rsc_intern path /hub* /api/* /static/* /media/* /login* /setup* /invite/* /passwort-* /auth/* /bild/* /links*
+	header @rsc_intern X-Robots-Tag "noindex, nofollow"
+
+	reverse_proxy rsc-frya-hub:8770
+}

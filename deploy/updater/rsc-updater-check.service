@@ -1,0 +1,10 @@
+[Unit]
+Description=RSC Frya Fresena Update-Helfer: Versionen und verfügbare Updates prüfen
+After=docker.service network-online.target
+
+[Service]
+Type=oneshot
+Environment=HOME=/root
+Environment=RSC_APP=/opt/docker/apps/rsc-frya-fresena
+ExecStart=/usr/bin/python3 /usr/local/sbin/rsc-updater.py check
+TimeoutStartSec=30min

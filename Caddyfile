@@ -1,0 +1,35 @@
+# Caddy für den Betrieb mit eigenem Webserver (docker-compose.yml). Werte aus der .env.
+# Hinter dem zentralen Proxy gilt stattdessen deploy/caddy-proxy-block.txt (in /opt/docker/proxy/Caddyfile).
+{
+	email {$ACME_EMAIL}
+	default_sni {$DOMAIN}
+}
+
+{$DOMAIN} {
+	encode zstd gzip
+
+	# Uploads und Backups, Umzugsdatei bis 2 GB (die Grenzen pro Anfrage prüft der Hub selbst)
+	request_body {
+		max_size 2GB
+	}
+
+	header {
+		Strict-Transport-Security "max-age=31536000"
+		?X-Content-Type-Options "nosniff"
+		?Referrer-Policy "strict-origin-when-cross-origin"
+		?Permissions-Policy "camera=(), microphone=(), geolocation=(), interest-cohort=()"
+		-Server
+	}
+
+	# Hub und interne Adressen nie in Suchmaschinen. Die Webseite selbst steuert der Hub (Webseite > Texte > Suchmaschinen).
+	@intern path /hub* /api/* /static/* /media/* /login* /setup* /invite/* /passwort-* /auth/* /bild/* /links*
+	header @intern X-Robots-Tag "noindex, nofollow"
+
+	reverse_proxy hub:8770
+}
+
+# Weitere Adressen (z. B. www.) leiten dauerhaft auf DOMAIN um. Mehrere mit Leerzeichen trennen.
+# Ohne Eintrag in der .env bleibt nur der lokale Platzhalter (kein Zertifikat aus dem Internet nötig).
+{$REDIRECT_DOMAINS:umleitung.localhost} {
+	redir https://{$DOMAIN}{uri} permanent
+}
