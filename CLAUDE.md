@@ -49,7 +49,8 @@ Betreiber: Silas (Admin). Sprache der Oberfläche, Texte und Antworten: **Deutsc
   (`--red` heißt aus der Vorlage so und ist die Akzentfarbe Tannengrün, `--red-text` Warnungen, `--gold`).
 - Betrieb: `Dockerfile` (Port 8770, Benutzer 1000), `docker-compose.yml` (mit eigenem Caddy `rsc-caddy`), `docker-compose.proxy.yml` (hinter dem zentralen Proxy, nur `expose`, Netzwerk `proxy` external,
   Container `rsc-frya-hub`), `Caddyfile`, `deploy/caddy-proxy-block.txt` (Block für `/opt/docker/proxy/Caddyfile`, Variable `RSC_DOMAIN`), `.env` (nicht im Repo),
-  `setup.sh` (`--proxy`), `update.sh`, `server-haerten.sh` (nur frischer Server), Update-Helfer `deploy/updater/` (`rsc-updater.py`, hinter dem Proxy nur „check“ und „hub“,
+  `setup.sh` (`--proxy`), `update.sh`, `deploy/install-vps.sh` (komplette Installation hinter dem Proxy: klont, ruft `setup.sh --proxy`, ergänzt Proxy-`.env` und Caddyfile
+  mit Sicherung, prüft im Wegwerf-Container, Proxy-Neustart nur nach Rückfrage, Test beider Seiten mit Zurückrollen), `server-haerten.sh` (nur frischer Server), Update-Helfer `deploy/updater/` (`rsc-updater.py`, hinter dem Proxy nur „check“ und „hub“,
   ebenso `UPD_ACTIONS` im Server). Anleitung `deploy/DEPLOY.md`. Projektordner auf dem VPS: `/opt/docker/apps/rsc-frya-fresena`.
 - Daten zur Laufzeit in `data/` (nicht im Repo): `rsc.db`, `media/`, `site/`, `backups/`, `updater/`.
 

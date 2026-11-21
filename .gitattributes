@@ -9,3 +9,7 @@ Caddyfile text eol=lf
 .env.example text eol=lf
 *.bat text eol=crlf
 *.png binary
+*.service text eol=lf
+*.timer text eol=lf
+*.path text eol=lf
+deploy/caddy-proxy-block.txt text eol=lf

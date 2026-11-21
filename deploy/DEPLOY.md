@@ -23,6 +23,28 @@ Internet ──> 80/443 ──> proxy-caddy ──(Netzwerk "proxy")──> best
 Regeln: kein `ports:` (nur `expose:`), Netzwerk `proxy` als `external`, eigener Container-Name `rsc-frya-hub`, Port 8770 (nicht 8765),
 eigener Ordner `/opt/docker/apps/rsc-frya-fresena`. Keine neuen Ports in der Firewall öffnen. `server-haerten.sh` hier **nicht** ausführen (der VPS ist schon abgesichert).
 
+### Schnellweg: ein Skript für die Schritte 2 bis 7
+
+Nach dem DNS-Eintrag (Schritt 1) erledigt `deploy/install-vps.sh` den Rest in einem Lauf: Voraussetzungen und DNS prüfen, Repository klonen,
+`setup.sh --proxy`, Proxy-`.env` und Caddyfile sichern und ergänzen, die neue Proxy-Konfiguration in einem Wegwerf-Container prüfen,
+**nach Rückfrage** den Proxy neu erstellen, beide Seiten testen (bei Problemen mit der bestehenden Seite: Angebot zum Zurückrollen), optional den Update-Helfer einrichten.
+Mehrfach ausführbar, schon Vorhandenes wird erkannt.
+
+Am PC (PowerShell, Platzhalter ersetzen):
+
+```
+scp -i $env:USERPROFILE\.ssh\<schluessel> deploy\install-vps.sh <benutzer>@<server>:/tmp/
+```
+
+Auf dem VPS:
+
+```
+sudo bash /tmp/install-vps.sh
+```
+
+Das Skript fragt: Domain (Vorgabe `reiten.silasgrbwskfotografie.de`), Repository-Adresse, Admin-Benutzername und Passwort (tippst du selbst),
+die Bestätigung vor dem Neustart des Proxys und ob der Update-Helfer eingerichtet werden soll. Die Schritte 2 bis 7 unten sind der Weg von Hand.
+
 ### 1. DNS
 
 Beim Anbieter der Domain `silasgrbwskfotografie.de`:
