@@ -94,8 +94,9 @@ schreibt die `.env` (`chmod 600`, mit `COMPOSE_FILE=docker-compose.proxy.yml`) u
 4. Neue `.env`-Werte übernimmt Caddy nur mit neu erstelltem Container (ein reines `reload` reicht nicht).
    **Achtung: Das unterbricht auch die bestehende Seite für ein paar Sekunden.** Am besten zu einer ruhigen Zeit:
    ```
-   cd /opt/docker/proxy && docker compose up -d
+   cd /opt/docker/proxy && docker compose up -d && docker compose exec caddy caddy reload --config /etc/caddy/Caddyfile
    ```
+   (`up -d` erstellt den Container nur bei geänderter `.env` neu, das neue Caddyfile liest erst `reload` ein.)
 
 ### 5. Testen
 

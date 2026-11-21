@@ -133,8 +133,9 @@ if [ "$NEED_ENV" = 1 ] || [ "$NEED_BLOCK" = 1 ]; then
   cp -p "$PROXY_DIR/Caddyfile" "$PROXY_DIR/Caddyfile.vor-rsc-$STAMP"
   cat "$WORK/env" > "$PROXY_DIR/.env"            # Inhalt ersetzen, Rechte und Besitzer bleiben
   cat "$WORK/Caddyfile" > "$PROXY_DIR/Caddyfile"
-  (cd "$PROXY_DIR" && docker compose up -d)
-  ok "Proxy neu gestartet"
+  # up -d erstellt den Container nur neu, wenn sich die .env geändert hat; ein geändertes Caddyfile liest erst reload ein
+  (cd "$PROXY_DIR" && docker compose up -d && sleep 2 && docker compose exec -T caddy caddy reload --config /etc/caddy/Caddyfile)
+  ok "Proxy neu gestartet und Konfiguration geladen"
   ROLLBACK=1
 else
   ROLLBACK=0
@@ -154,7 +155,7 @@ if [ -n "$OTHER" ]; then
     if [ "$ROLLBACK" = 1 ] && ask "Proxy auf den alten Stand zurücksetzen?"; then
       cp -p "$PROXY_DIR/.env.vor-rsc-$STAMP" "$PROXY_DIR/.env"
       cp -p "$PROXY_DIR/Caddyfile.vor-rsc-$STAMP" "$PROXY_DIR/Caddyfile"
-      (cd "$PROXY_DIR" && docker compose up -d)
+      (cd "$PROXY_DIR" && docker compose up -d && sleep 2 && docker compose exec -T caddy caddy reload --config /etc/caddy/Caddyfile)
       die "Proxy zurückgesetzt. Logs: cd $PROXY_DIR && docker compose logs --tail 100 caddy"
     fi
   fi
