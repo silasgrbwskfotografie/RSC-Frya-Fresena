@@ -2,13 +2,17 @@
 # RSC Frya Fresena Hub: komplette Installation auf dem VPS hinter dem zentralen Proxy (/opt/docker/proxy).
 # Macht die Schritte 2 bis 5 aus deploy/DEPLOY.md in einem Lauf und fragt vor allem, was andere Seiten betrifft.
 #
-# Auf den VPS bringen und starten (PowerShell am PC, dann auf dem VPS):
+# Am einfachsten vom PC aus mit deploy/installiere-vps.ps1 (kopiert dieses Skript und startet es).
+# Von Hand:
 #   scp -i $env:USERPROFILE\.ssh\<schluessel> deploy\install-vps.sh <benutzer>@<server>:/tmp/
-#   sudo bash /tmp/install-vps.sh
+#   sudo bash /tmp/install-vps.sh [--repo <adresse>] [--domain <domain>]
 #
 # Ablauf:
 #   1. Prüfen: root, Docker, laufender Proxy, Netzwerk "proxy", DNS der Domain
-#   2. Repository nach /opt/docker/apps/rsc-frya-fresena klonen (oder vorhandenes nutzen)
+#   2. Repository nach /opt/docker/apps/rsc-frya-fresena klonen (oder vorhandenes nutzen).
+#      Öffentlich: per HTTPS. Privat (GitHub): legt einen Deploy-Key nur für dieses Repository an, zeigt ihn zum Eintragen
+#      bei GitHub, klont per SSH und merkt sich den Schlüssel im Repository (core.sshCommand), damit update.sh ohne Rückfrage zieht.
+#      Andere Programme auf dem Server (und deren GitHub-Zugang) bleiben unberührt.
 #   3. setup.sh --proxy (fragt Admin und Passwort, startet den Container ohne Ports)
 #   4. Proxy: Sicherung von .env und Caddyfile, RSC_DOMAIN und Caddy-Block ergänzen,
 #      neue Konfiguration in einem Wegwerf-Container prüfen, erst nach Rückfrage übernehmen
@@ -30,6 +34,16 @@ warn() { printf '   ACHTUNG: %s\n' "$*"; }
 die()  { printf '\nAbbruch: %s\n' "$*" >&2; exit 1; }
 ask()  { local a; read -rp "   $1 [j/N] " a; [[ "$a" =~ ^[jJyY]$ ]]; }
 
+REPO=""; DOMAIN=""
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --repo) REPO="${2:-}"; shift 2;;
+    --domain) DOMAIN="${2:-}"; shift 2;;
+    *) die "Unbekannte Option: $1 (erlaubt: --repo <adresse>, --domain <domain>)";;
+  esac
+done
+DEPLOY_KEY="/root/.ssh/rsc_frya_deploy"   # nur für dieses Repository, über core.sshCommand, keine globale SSH-Konfiguration
+
 # ---------------------------------------------------------------- 1. Prüfen
 say "1. Voraussetzungen"
 [ "$(id -u)" -eq 0 ] || die "Bitte mit sudo starten: sudo bash $0"
@@ -44,7 +58,7 @@ docker network inspect proxy >/dev/null 2>&1 || die "Docker-Netzwerk 'proxy' feh
 grep -q '^(sicherheit)' "$PROXY_DIR/Caddyfile" || die "Im Proxy-Caddyfile fehlt der Block (sicherheit), den der neue Block importiert."
 ok "Docker, Proxy ($PROXY_CONTAINER) und Netzwerk proxy sind da"
 
-read -rp "   Domain [$DEFAULT_DOMAIN]: " DOMAIN; DOMAIN=${DOMAIN:-$DEFAULT_DOMAIN}
+[ -n "$DOMAIN" ] || { read -rp "   Domain [$DEFAULT_DOMAIN]: " DOMAIN; DOMAIN=${DOMAIN:-$DEFAULT_DOMAIN}; }
 [[ "$DOMAIN" =~ ^[a-z0-9]([a-z0-9.-]*[a-z0-9])?$ ]] || die "Ungültige Domain: $DOMAIN (nur Name, ohne https://)"
 
 # DNS: zeigt die Domain auf diesen Server? Sonst bekommt Caddy kein Zertifikat.
@@ -69,13 +83,38 @@ if [ -d "$APP_DIR/.git" ]; then
   ok "Repository ist schon da ($(git -C "$APP_DIR" log --oneline -1 2>/dev/null || echo '?'))"
 else
   [ -e "$APP_DIR" ] && [ -n "$(ls -A "$APP_DIR" 2>/dev/null)" ] && die "$APP_DIR ist nicht leer, aber kein Git-Repository. Bitte prüfen."
-  read -rp "   Repository-Adresse (z. B. https://github.com/<konto>/<repository>.git): " REPO
+  [ -n "$REPO" ] || read -rp "   Repository-Adresse (z. B. https://github.com/<konto>/<repository>.git): " REPO
   [ -n "$REPO" ] || die "Keine Repository-Adresse."
+  # GitHub-Adresse in beiden Formen: https://github.com/a/b(.git) und git@github.com:a/b(.git)
+  GH_PATH=$(printf '%s' "$REPO" | sed -nE 's#^(https://github\.com/|git@github\.com:)([^/]+/[^/]+)/?$#\2#p' | sed 's/\.git$//')
+  HTTPS_URL="$REPO"; SSH_URL=""
+  if [ -n "$GH_PATH" ]; then HTTPS_URL="https://github.com/${GH_PATH}.git"; SSH_URL="git@github.com:${GH_PATH}.git"; fi
   mkdir -p "$APP_DIR"
-  echo "   Bei einem privaten Repository fragt git jetzt nach Zugangsdaten (die tippst du selbst)."
-  git clone "$REPO" "$APP_DIR" || die "git clone fehlgeschlagen."
+  if GIT_TERMINAL_PROMPT=0 git ls-remote "$HTTPS_URL" >/dev/null 2>&1; then
+    ok "Repository ist öffentlich erreichbar, klone per HTTPS"
+    git clone "$HTTPS_URL" "$APP_DIR" || die "git clone fehlgeschlagen."
+  else
+    [ -n "$SSH_URL" ] || die "Repository nicht erreichbar: $REPO (privat und nicht bei GitHub? Dann bitte von Hand klonen)."
+    say "Privates Repository: Zugang über einen Deploy-Key (nur Lesen, nur dieses Repository)"
+    install -d -m 700 /root/.ssh
+    [ -f "$DEPLOY_KEY" ] || ssh-keygen -q -t ed25519 -N "" -C "rsc-frya-fresena@$(hostname)" -f "$DEPLOY_KEY"
+    GSSH="ssh -i $DEPLOY_KEY -o IdentitiesOnly=yes -o StrictHostKeyChecking=accept-new"
+    until GIT_SSH_COMMAND="$GSSH" GIT_TERMINAL_PROMPT=0 git ls-remote "$SSH_URL" >/dev/null 2>&1; do
+      echo
+      echo "   Bitte diesen Schlüssel bei GitHub eintragen:"
+      echo "   https://github.com/${GH_PATH}/settings/keys  >  Add deploy key  >  Titel z. B. VPS, Haken 'Allow write access' NICHT setzen"
+      echo
+      cat "$DEPLOY_KEY.pub"
+      echo
+      read -rp "   Eingetragen? Enter zum Prüfen, a + Enter zum Abbrechen: " A
+      [ "$A" = "a" ] && die "Abgebrochen. Der Schlüssel bleibt in $DEPLOY_KEY für den nächsten Versuch."
+    done
+    ok "Zugang über Deploy-Key klappt"
+    GIT_SSH_COMMAND="$GSSH" git clone "$SSH_URL" "$APP_DIR" || die "git clone fehlgeschlagen."
+    git -C "$APP_DIR" config core.sshCommand "$GSSH"   # update.sh (git pull als root) nutzt denselben Schlüssel
+  fi
   chown -R "$OWNER": "$APP_DIR"
-  ok "geklont"
+  ok "geklont nach $APP_DIR"
 fi
 git config --global --add safe.directory "$APP_DIR" 2>/dev/null || true
 [ -f "$APP_DIR/setup.sh" ] && [ -f "$APP_DIR/docker-compose.proxy.yml" ] || die "Im Repository fehlen setup.sh oder docker-compose.proxy.yml."
@@ -89,8 +128,7 @@ if [ -f "$APP_DIR/.env" ]; then
   ok ".env vorhanden, wird nicht verändert"
   (cd "$APP_DIR" && docker compose up -d --build)
 else
-  echo "   Bei der Domain bitte genau eingeben: $DOMAIN"
-  bash "$APP_DIR/setup.sh" --proxy
+  SETUP_DOMAIN="$DOMAIN" bash "$APP_DIR/setup.sh" --proxy
 fi
 docker inspect -f '{{.State.Running}}' "$HUB_CONTAINER" 2>/dev/null | grep -q true || die "Container $HUB_CONTAINER läuft nicht. Logs: cd $APP_DIR && docker compose logs --tail 50 hub"
 ok "Container $HUB_CONTAINER läuft (ohne Ports, nur im Netzwerk proxy)"

@@ -13,3 +13,4 @@ Caddyfile text eol=lf
 *.timer text eol=lf
 *.path text eol=lf
 deploy/caddy-proxy-block.txt text eol=lf
+*.ps1 text eol=crlf

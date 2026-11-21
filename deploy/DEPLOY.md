@@ -30,19 +30,20 @@ Nach dem DNS-Eintrag (Schritt 1) erledigt `deploy/install-vps.sh` den Rest in ei
 **nach Rückfrage** den Proxy neu erstellen, beide Seiten testen (bei Problemen mit der bestehenden Seite: Angebot zum Zurückrollen), optional den Update-Helfer einrichten.
 Mehrfach ausführbar, schon Vorhandenes wird erkannt.
 
-Am PC (PowerShell, Platzhalter ersetzen):
+**Mit einem Befehl vom PC** (PowerShell im Projektordner, vorher in GitHub Desktop pushen, Platzhalter ersetzen):
 
 ```
-scp -i $env:USERPROFILE\.ssh\<schluessel> deploy\install-vps.sh <benutzer>@<server>:/tmp/
+powershell -ExecutionPolicy Bypass -File deploy\installiere-vps.ps1 -Server <ip> -Benutzer <benutzer> -Schluessel <schluesseldatei>
 ```
 
-Auf dem VPS:
+`deploy/installiere-vps.ps1` liest die Repository-Adresse aus Git, warnt bei nicht gepushten Commits, kopiert `install-vps.sh` per `scp` auf den VPS
+und startet es dort per `ssh`. Alle Fragen beantwortest du im selben Fenster. Ist das Repository privat, legt das Skript einen Deploy-Key nur für dieses
+Repository an, zeigt ihn zum Eintragen bei GitHub (Settings > Deploy keys, nur Lesen) und merkt ihn sich im Repository (`core.sshCommand`), damit `update.sh` ohne Rückfrage zieht.
 
-```
-sudo bash /tmp/install-vps.sh
-```
+Oder von Hand: `scp -i $env:USERPROFILE\.ssh\<schluessel> deploy\install-vps.sh <benutzer>@<server>:/tmp/`, dann auf dem VPS
+`sudo bash /tmp/install-vps.sh [--repo <adresse>] [--domain <domain>]`.
 
-Das Skript fragt: Domain (Vorgabe `reiten.silasgrbwskfotografie.de`), Repository-Adresse, Admin-Benutzername und Passwort (tippst du selbst),
+Das Skript fragt: Domain (Vorgabe `reiten.silasgrbwskfotografie.de`, entfällt mit `--domain`), Repository-Adresse (entfällt mit `--repo`), Admin-Benutzername und Passwort (tippst du selbst),
 die Bestätigung vor dem Neustart des Proxys und ob der Update-Helfer eingerichtet werden soll. Die Schritte 2 bis 7 unten sind der Weg von Hand.
 
 ### 1. DNS
