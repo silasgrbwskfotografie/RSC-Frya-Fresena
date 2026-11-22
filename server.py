@@ -49,7 +49,7 @@ import urllib.error
 
 import website   # öffentliche Webseite (website.py, gleiche Ordnerebene)
 
-VERSION = "1.0"
+VERSION = "1.1"
 APP_NAME = "RSC Frya Fresena Hub"
 ENV = os.environ.get
 HOST = ENV("TMH_HOST", "127.0.0.1")

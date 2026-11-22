@@ -1,5 +1,13 @@
 # Änderungen
 
+## 1.1
+
+- Hub „schlicht und sachlich“ (nach dem Vorbild des Vereins-Hubs 5.19): ruhige Flächen, hell gebrochenes Weiß, dunkel Graphit statt Schwarz,
+  keine Schatten, kein Schimmer, kein Glas, kein Logo im Hintergrund, Systemschrift für Titel und Zahlen. Tannengrün nur als Akzent.
+- Leiste oben flach und durchgehend, aktiver Bereich unterstrichen. Handy: Leisten ohne Unschärfe, Bedienung unverändert.
+- Übersicht neu: Kopf mit Datum und Knöpfen, Kennzahlen-Leiste mit Links, Widgets als Karten mit Kopfzeile und Zeilen statt Ringen und großen Zahlen.
+  Gespeicherte Widget-Auswahl bleibt gültig (gleiche Schlüssel).
+
 ## 1.0
 
 - Erste Fassung für den RSC Frya Fresena e. V.: öffentliche Webseite (Start, Verein, Reitunterricht mit Voltigieren, Schulpferde, Anlage, Termine, Hallenplan,

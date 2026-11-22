@@ -88,6 +88,9 @@ Betreiber: Silas (Admin). Sprache der Oberfläche, Texte und Antworten: **Deutsc
 
 ## Konventionen
 
+- Hub-Design „schlicht“ (1.1): letzter Abschnitt in `static/style.css` überschreibt die älteren. Keine Schatten (außer Dialog und Aufklappmenü), kein Verlauf, kein Glas,
+  kein Hover-Versatz, Systemschrift auch für Titel und Zahlen (`tabular-nums`), Karten 8 px, Knöpfe 6 px, Plaketten 4 px. Akzent nur für Hauptknöpfe, aktiven Menüpunkt, Markierungen.
+  Übersicht: Kopf, Kennzahlen-Leiste (`.dash-kpis`), Widgets mit Kopfzeile (`.dash-wh`/`.dash-wb`); Widget-Schlüssel in `02-uebersicht.js` nie umbenennen (gespeicherte `dash_layout`).
 - Vereinsdesign aus dem Logo: Tannengrün `#0D393A`, Gold `#B0945C`. Logo `static/logo.png` (Hub) und `web/assets/logo.webp` (Webseite) nicht verändern.
 - Keine externen Abhängigkeiten ohne guten Grund (Server: nur Standardbibliothek, Frontend: kein Build).
 - Versionsnummer an zwei Stellen gleich halten: `VERSION` in server.py und `APP_VERSION` in static/app.js.
