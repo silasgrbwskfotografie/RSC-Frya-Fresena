@@ -863,7 +863,9 @@ a.card:hover,.on-card:hover,.note-card:hover{transform:none}
 .toolbar .btn.sm.dark{box-shadow:none}
 .field input[type=text],.field input[type=number],.field input[type=date],.field input[type=time],.field input[type=url],.field input[type=email],.field input[type=password],.field select,.field textarea,.input,
 .modal-box input[type=text],.modal-box input[type=password]{border-radius:6px;padding:7px 10px}
-input:focus,select:focus,textarea:focus{box-shadow:0 0 0 2px var(--red-glow)}
+input:focus,select:focus,textarea:focus{outline:0;box-shadow:0 0 0 2px var(--red-glow)}
+.pf-new,.plan-card,.web-preview iframe,.canvas-wrap canvas{box-shadow:none}   /* ältere Schatten (u. a. roter Schimmer am Knopf Neue Mail) */
+.pf-new{border-radius:8px}
 .badge{border-radius:4px;padding:2px 7px;font-size:11px;font-weight:600}
 .modal{background:rgba(0,0,0,.45);-webkit-backdrop-filter:none;backdrop-filter:none}
 .modal-box{border-radius:10px;padding:20px 22px}

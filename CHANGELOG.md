@@ -7,6 +7,7 @@
 - Leiste oben flach und durchgehend, aktiver Bereich unterstrichen. Handy: Leisten ohne Unschärfe, Bedienung unverändert.
 - Übersicht neu: Kopf mit Datum und Knöpfen, Kennzahlen-Leiste mit Links, Widgets als Karten mit Kopfzeile und Zeilen statt Ringen und großen Zahlen.
   Gespeicherte Widget-Auswahl bleibt gültig (gleiche Schlüssel).
+- Nachgezogen: rötlicher Fokusrahmen an Eingabefeldern, Schatten am Knopf „Neue Mail“ (Handy), an Planungskarten und der Webseiten-Vorschau entfernt.
 
 ## 1.0
 
