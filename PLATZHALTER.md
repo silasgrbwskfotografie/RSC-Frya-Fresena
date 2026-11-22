@@ -40,7 +40,7 @@ Beide sind Vorlagen mit Angaben in [eckigen Klammern], die gelb erscheinen. Bitt
 
 - **E-Mail-Anbieter** für Postfach und Versand: noch nicht festgelegt. Eintragen unter Einstellungen > E-Mail-Versand.
 - **Repository öffentlich oder privat**: noch nicht festgelegt. Bei privat bleibt `TMH_UPDATE_URL` leer (siehe `.env.example`).
-- **Eigene Domain**: vorerst `reiten.silasgrbwskfotografie.de`, Suchmaschinen sind ausgeschlossen (abschaltbar unter Webseite > Texte > Suchmaschinen).
+- **Eigene Domain**: vorerst `pferd.silasgrbwskfotografie.de`, Suchmaschinen sind ausgeschlossen (abschaltbar unter Webseite > Texte > Suchmaschinen).
 
 ## Vorschläge, die geprüft werden sollten
 

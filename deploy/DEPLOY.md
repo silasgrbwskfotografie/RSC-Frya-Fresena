@@ -1,6 +1,6 @@
 # Betrieb: RSC Frya Fresena Hub
 
-Webseite unter `/`, Hub unter `/hub`. Vorläufige Adresse: **https://reiten.silasgrbwskfotografie.de**.
+Webseite unter `/`, Hub unter `/hub`. Vorläufige Adresse: **https://pferd.silasgrbwskfotografie.de**.
 Die Adresse steht nur in `DOMAIN` in der `.env` (und hinter dem Proxy in `RSC_DOMAIN` der Proxy-`.env`), nie im Code.
 
 Zwei Betriebsarten:
@@ -43,20 +43,20 @@ Repository an, zeigt ihn zum Eintragen bei GitHub (Settings > Deploy keys, nur L
 Oder von Hand: `scp -i $env:USERPROFILE\.ssh\<schluessel> deploy\install-vps.sh <benutzer>@<server>:/tmp/`, dann auf dem VPS
 `sudo bash /tmp/install-vps.sh [--repo <adresse>] [--domain <domain>]`.
 
-Das Skript fragt: Domain (Vorgabe `reiten.silasgrbwskfotografie.de`, entfällt mit `--domain`), Repository-Adresse (entfällt mit `--repo`), Admin-Benutzername und Passwort (tippst du selbst),
+Das Skript fragt: Domain (Vorgabe `pferd.silasgrbwskfotografie.de`, entfällt mit `--domain`), Repository-Adresse (entfällt mit `--repo`), Admin-Benutzername und Passwort (tippst du selbst),
 die Bestätigung vor dem Neustart des Proxys und ob der Update-Helfer eingerichtet werden soll. Die Schritte 2 bis 7 unten sind der Weg von Hand.
 
 ### 1. DNS
 
 Beim Anbieter der Domain `silasgrbwskfotografie.de`:
 
-- **A-Eintrag** `reiten` → IP des VPS (dieselbe IP wie die bestehende Seite auf dem VPS). Bei IPv6 zusätzlich ein AAAA-Eintrag, sonst keinen anlegen.
-- **MX- und TXT-Einträge (SPF, DKIM, DMARC) nicht anfassen.** Nur den neuen A-Eintrag für `reiten` setzen.
+- **A-Eintrag** `pferd` → IP des VPS (dieselbe IP wie die bestehende Seite auf dem VPS). Bei IPv6 zusätzlich ein AAAA-Eintrag, sonst keinen anlegen.
+- **MX- und TXT-Einträge (SPF, DKIM, DMARC) nicht anfassen.** Nur den neuen A-Eintrag für `pferd` setzen.
 
 Prüfen auf dem VPS (kann je nach Anbieter bis zu einigen Stunden dauern):
 
 ```
-getent hosts reiten.silasgrbwskfotografie.de
+getent hosts pferd.silasgrbwskfotografie.de
 ```
 
 Erst wenn hier die IP des VPS steht, kann Caddy das Zertifikat holen.
@@ -77,14 +77,14 @@ Bei einem privaten Repository braucht der VPS einen Lesezugang (z. B. Deploy-Key
 cd /opt/docker/apps/rsc-frya-fresena && sudo bash setup.sh --proxy
 ```
 
-Das Skript prüft Docker, fragt Domain (`reiten.silasgrbwskfotografie.de`), Admin-Benutzername und das Admin-Passwort (du tippst es, es wird nicht angezeigt),
+Das Skript prüft Docker, fragt Domain (`pferd.silasgrbwskfotografie.de`), Admin-Benutzername und das Admin-Passwort (du tippst es, es wird nicht angezeigt),
 schreibt die `.env` (`chmod 600`, mit `COMPOSE_FILE=docker-compose.proxy.yml`) und startet den Container. Es öffnet keinen Port.
 
 ### 4. Proxy erweitern
 
 1. In `/opt/docker/proxy/.env` diese Zeile ergänzen:
    ```
-   RSC_DOMAIN=reiten.silasgrbwskfotografie.de
+   RSC_DOMAIN=pferd.silasgrbwskfotografie.de
    ```
 2. In `/opt/docker/proxy/Caddyfile` den Block aus `deploy/caddy-proxy-block.txt` einfügen (unter dem Block `(sicherheit)`, er nutzt `import sicherheit`).
 3. Prüfen, bevor etwas neu geladen wird (ein Fehler im Caddyfile legt **alle** Seiten des VPS lahm):
@@ -102,8 +102,8 @@ schreibt die `.env` (`chmod 600`, mit `COMPOSE_FILE=docker-compose.proxy.yml`) u
 ### 5. Testen
 
 ```
-curl -I https://reiten.silasgrbwskfotografie.de
-curl -s https://reiten.silasgrbwskfotografie.de/healthz
+curl -I https://pferd.silasgrbwskfotografie.de
+curl -s https://pferd.silasgrbwskfotografie.de/healthz
 cd /opt/docker/proxy && docker compose logs --tail 100 caddy
 ```
 
@@ -112,7 +112,7 @@ Danach prüfen, dass die **bestehende Seite auf dem VPS weiter erreichbar** ist 
 
 ### 6. Erste Anmeldung
 
-1. `https://reiten.silasgrbwskfotografie.de/hub` mit dem Admin aus Schritt 3 anmelden.
+1. `https://pferd.silasgrbwskfotografie.de/hub` mit dem Admin aus Schritt 3 anmelden.
 2. Unter **Mein Profil** die Zwei-Faktor-Anmeldung einrichten.
 3. In `/opt/docker/apps/rsc-frya-fresena/.env` die Zeile `TMH_ADMIN_PASSWORD` leeren (wird nur beim ersten Start gebraucht).
 4. **Einstellungen > E-Mail-Versand** (SMTP, IMAP für das Postfach) eintragen, sobald der Mail-Anbieter feststeht.
@@ -142,7 +142,7 @@ Hinter dem Proxy darf der Helfer nur „Jetzt prüfen“ und „Hub aktualisiere
 | Status | `cd /opt/docker/apps/rsc-frya-fresena && docker compose ps` |
 | Logs | `cd /opt/docker/apps/rsc-frya-fresena && docker compose logs -f --tail 100 hub` |
 | Neu starten | `cd /opt/docker/apps/rsc-frya-fresena && docker compose restart` |
-| Version | `curl -s https://reiten.silasgrbwskfotografie.de/healthz` |
+| Version | `curl -s https://pferd.silasgrbwskfotografie.de/healthz` |
 
 `update.sh` sichert vorher die Datenbank (`data/backups/vor-update-...db`), holt `main` per `git pull --ff-only`, baut den Container neu und wartet auf `/healthz`.
 Auf dem Server keine Dateien im Repository von Hand ändern (das Skript bricht dann ab).

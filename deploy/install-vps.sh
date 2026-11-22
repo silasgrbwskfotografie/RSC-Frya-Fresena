@@ -25,7 +25,7 @@ APP_DIR="/opt/docker/apps/rsc-frya-fresena"
 PROXY_DIR="/opt/docker/proxy"
 PROXY_CONTAINER="proxy-caddy"
 HUB_CONTAINER="rsc-frya-hub"
-DEFAULT_DOMAIN="reiten.silasgrbwskfotografie.de"
+DEFAULT_DOMAIN="pferd.silasgrbwskfotografie.de"
 STAMP=$(date +%Y-%m-%d_%H%M%S)
 
 say()  { printf '\n== %s\n' "$*"; }

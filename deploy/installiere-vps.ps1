@@ -10,7 +10,7 @@ param(
   [string]$Server,
   [string]$Benutzer,
   [string]$Schluessel,
-  [string]$Domain = "reiten.silasgrbwskfotografie.de"
+  [string]$Domain = "pferd.silasgrbwskfotografie.de"
 )
 $ErrorActionPreference = "Continue"   # Fehler werden unten selbst geprueft (Stop bricht in PowerShell 5.1 schon bei Meldungen von git ab)
 

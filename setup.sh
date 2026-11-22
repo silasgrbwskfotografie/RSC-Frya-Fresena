@@ -37,7 +37,7 @@ fi
 if [ ! -f .env ]; then
   cp .env.example .env
   DOMAIN="${SETUP_DOMAIN:-}"   # deploy/install-vps.sh gibt die Domain vor
-  [ -n "$DOMAIN" ] || read -rp "Domain (z. B. reiten.silasgrbwskfotografie.de): " DOMAIN
+  [ -n "$DOMAIN" ] || read -rp "Domain (z. B. pferd.silasgrbwskfotografie.de): " DOMAIN
   case "$DOMAIN" in ""|*" "*|*/*|*:*) echo "Bitte nur den Namen ohne https:// und ohne Schrägstrich."; rm -f .env; exit 1;; esac
   REDIR=""; MAIL=""
   if [ "$PROXY" = 0 ]; then   # hinter dem zentralen Proxy regelt dessen Caddyfile Zertifikat und Umleitungen

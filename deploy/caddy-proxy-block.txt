@@ -1,6 +1,6 @@
 # ---------------------------------------------------------------- RSC Frya Fresena (Webseite und Hub)
 # In /opt/docker/proxy/Caddyfile UNTER dem Block (sicherheit) einfügen. Domain in /opt/docker/proxy/.env:
-#   RSC_DOMAIN=reiten.silasgrbwskfotografie.de
+#   RSC_DOMAIN=pferd.silasgrbwskfotografie.de
 # Später mit eigener Domain nur RSC_DOMAIN in der Proxy-.env und DOMAIN in /opt/docker/apps/rsc-frya-fresena/.env ändern.
 {$RSC_DOMAIN} {
 	import sicherheit
